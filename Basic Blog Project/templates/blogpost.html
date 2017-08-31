@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+		<!-- One -->
+			<section id="One" class="wrapper style3">
+				<div class="inner">
+					<header class="align-center">
+
+						<h2>Blogosphere</h2>
+					</header>
+				</div>
+			</section>
+
+		<!-- Two -->
+			<section id="two" class="wrapper style2">
+				<div class="inner">
+					<div class="box">
+						<div class="content">
+                            <div class="align-center"><h3 style="align-content: center;">{{ blog.subject }}</h3></div>
+							<div><header class="align-right">
+
+                                <u><p><b>Created by:</b>&nbsp;{{user.username }}</p></u>
+							</header>
+                            </div>
+                            <br>
+							<p>{{ blog.blogentry }}</p>
+                            <footer class="align-right" >
+
+                                <p><b>Updated</b>: {{ blog.created }}</p>
+
+                            </footer>
+                            <div><a  style="font-size: 25px;" href="/like/{{blog.key().id()}}" class="icon fa-heart"></a>({{blog.like}})</div>
+                            <div class="error">{{ likeerror }}</div>
+						</div>
+
+
+
+					</div>
+                <div class="align-right">
+
+
+
+
+                     <a href="/edit/{{blog.key().id()}}" class="button icon special fa-pencil-square-o">edit</a>
+                    <a href="/delete/{{blog.key().id()}}" class="button icon fa-trash">Delete</a>
+
+
+
+
+</div>
+                        <div class="align-right">
+                        <p class="error">{{ editerror }}{{ deleteerror }}</p>
+                        </div>
+
+
+
+
+                <hr color="#B1A289" size="1">
+<div>
+    <div style="display: inline-block;"><h3>Comments:</h3></div><div style="display: inline-block;" >&nbsp; &nbsp; &nbsp;<a href="/comment/{{blog.key().id()}}" class="button special small icon fa-commenting">Post new</a>
+
+<a href="/blog/{{blog.key().id()}}" class="button small icon fa-refresh">Refresh</a>
+
+</div>
+<p class="error">{{ commenterror }}{{ delerror }}{{ action }}</p>
+<hr color="#B1A289" size="1">
+
+
+
+        {% for comment in comments |sort(attribute='posted', reverse = True) %}
+            <div>
+                <p ><b>{{ comment.user.username }}</b>&nbsp;@{{ comment.posted }}</p>
+        <p>{{ comment.comment}}</p>
+
+            </div>
+
+
+
+<div><a style="font-size: 25px; " href="/editcomment/{{ comment.key().id() }}/{{blog.key().id()}}" class="align-right icon fa-pencil-square">
+    <a style="font-size: 25px; " href="/delcomment/{{ comment.key().id() }}/{{blog.key().id()}}" class="align-right icon fa-trash">
+
+</a></div>
+
+
+
+
+            <hr>
+
+
+         {% endfor %}
+</div>
+
+
+
+
+
+                </div>
+
+
+        </section>
+
+{% endblock %}

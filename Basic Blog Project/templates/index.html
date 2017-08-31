@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+            <!-- Banner -->
+                <section class="banner full">
+                    <article>
+                        <img src="styles/images/slide01.jpg" alt="" />
+                        <div class="inner">
+                            <header>
+                                <p>A Place to quench thirst for | <b>Blogging</b> </p>
+                                <h2>Blogosphere</h2>
+                            </header>
+                        </div>
+                    </article>
+
+                </section>
+<section id="one" class="wrapper style2">
+ <div class="inner">
+                        <div class="grid-style">
+
+
+{% set count = 1 %}
+    {% for blog in blogs %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- One -->
+
+
+
+                            <div>
+                                <div class="box">
+                                    <div class="image fit">
+                                        <img src="styles/images/pic0{{ count }}.jpg" alt="" />
+                                    </div>
+                                    <div class="content">
+                                        <header class="align-center">
+
+                                            <h2>{{blog.subject}}</h2>
+                                        </header>
+                                        <p> {{ blog.blogentry }}</p>
+                                        <footer class="align-center">
+                                            <a href="/blog/{{ blog.key().id() }}" class="button alt icon fa-eye">View Post</a>
+                                        </footer>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+{% set count = count + 1 %}
+
+            {% endfor %}
+                        </div>
+                    </div>
+ </section>
+{% endblock %}

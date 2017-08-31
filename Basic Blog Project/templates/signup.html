@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+          <section id="One" class="wrapper style3">
+				<div class="inner">
+					<header class="align-center">
+
+						<h2>Create an account</h2>
+                        <p class="error">{{ newposterror }}</p>
+					</header>
+				</div>
+			</section>
+
+          <div id="main" class="container">
+
+    <form method="post">
+      <table>
+        <tr>
+          <td class="label">
+            Username
+          </td>
+          <td>
+            <input type="text" name="username" value="{{username}}">
+          </td>
+          <td class="error">
+              {{usererror}}
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">
+            Password
+          </td>
+          <td>
+            <input type="password" name="password" value="">
+          </td>
+          <td class="error">
+          {{pwderror}}
+
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">
+            Verify Password
+          </td>
+          <td>
+            <input type="password" name="verify" value="">
+          </td>
+          <td class="error">
+          {{cmperror}}
+
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">
+            Email (optional)
+          </td>
+          <td>
+            <input type="text" name="email" value="{{email}}">
+          </td>
+          <td class="error">
+          {{emailerror}}
+
+          </td>
+        </tr>
+      </table>
+
+      <input type="submit" value="Create" class="button special">
+        <a href="/login"><u>Login</u></a>
+    </form>
+          </div>
+
+
+{% endblock %}

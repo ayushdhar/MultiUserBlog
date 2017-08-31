@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+        <section id="One" class="wrapper style3">
+				<div class="inner">
+					<header class="align-center">
+
+						<h2>New Post</h2>
+					</header>
+				</div>
+			</section>
+
+<div id="main" class="container">
+    <form method="post">
+        <label>
+            <div >Title:</div>
+            <input  type="text" name="subject" value="{{subject}}"><br>
+        </label>
+        <label>
+        <div>Contents:</div>
+
+            <div class="12u$">
+                <textarea  name="blogentry" placeholder="Enter text here" rows="6">{{blogentry}}</textarea>
+            </div>
+
+        </label>
+        <div class="error">{{error}}</div>
+        <div><input  type="submit" value="Submit"></div>
+
+
+    </form>
+
+</div>
+{% endblock %}

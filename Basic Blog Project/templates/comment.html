@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+        <section id="One" class="wrapper style3">
+				<div class="inner">
+					<header class="align-center">
+
+						<h2>Comment</h2>
+					</header>
+				</div>
+			</section>
+
+<div id="main" class="container">
+    <form method="post">
+
+        <div>Comment: </div>
+
+            <div class="12u$">
+                <textarea  name="comment" placeholder="Enter comment here" rows="6"></textarea>
+            </div>
+
+
+        <div class="error">{{error}}</div>
+        <div><input  type="submit" value="Post"></div>
+
+
+    </form>
+
+</div>
+{% endblock %}

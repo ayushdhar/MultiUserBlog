@@ -1,0 +1,69 @@
+ <!DOCTYPE HTML>
+
+    <html>
+        <head>
+            <title>Main Page</title>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <link rel="stylesheet" href="/styles/css/main.css" />
+        </head>
+        <body>
+
+            <!-- Header -->
+                <header id="header">
+				<div class="logo"><a class="icon fa-home" href="/blog"></a></div>
+				<a href="#menu">Menu</a>
+			</header>
+
+
+            <!-- Nav -->
+                <nav id="menu">
+                    <ul class="links">
+                        <li><a href="/newpost">New Post</a></li>
+                        {% if user_id == "" %}
+                        <li><a href="/login">Login</a></li>
+
+                            {% endif %}
+
+
+
+
+                        {% if user_id != None and user_id !=""%}
+                        <li><a href="/logout">Logout</a></li>
+                            <li><a href="/posts">My posts</a></li>
+                    {% endif %}
+
+                    </ul>
+                </nav>
+        {% block content %}
+
+{% endblock %}
+
+
+
+            <!-- Footer -->
+                <footer id="footer">
+                    <div class="container">
+                        <ul class="icons">
+                            <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+                            <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
+                            <li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
+                            <li><a href="#" class="icon fa-envelope-o"><span class="label">Email</span></a></li>
+                        </ul>
+                    </div>
+                    <div class="copyright">
+
+                        <a href="#">Blog <span>by Ayush</span></a>
+
+                    </div>
+                </footer>
+
+            <!-- Scripts -->
+                <script src="/styles/js/jquery.min.js"></script>
+                <script src="/styles/js/jquery.scrollex.min.js"></script>
+                <script src="/styles/js/skel.min.js"></script>
+                <script src="/styles/js/util.js"></script>
+                <script src="/styles/js/main.js"></script>
+
+        </body>
+    </html>

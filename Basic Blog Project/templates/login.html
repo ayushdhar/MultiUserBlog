@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+            <section id="One" class="wrapper style3">
+				<div class="inner">
+					<header class="align-center">
+
+						<h2>Login</h2>
+					</header>
+				</div>
+			</section>
+
+
+
+    <div id="main" class="container">
+    <form method="post">
+      <table>
+        <tr>
+          <td class="label">Username</td>
+          <td>
+            <input type="text" name="username" value="">
+          </td>
+
+        </tr>
+
+        <tr>
+          <td class="label">Password</td>
+          <td>
+            <input type="password" name="password" value="">
+          </td>
+          </tr>
+          </table>
+          <div>
+
+          {{error}}
+          </div>
+
+
+
+
+
+
+     <input type="submit" value="Login" class="button special">
+        <a href="/signup"><u>Create Account</u></a>
+    </form>
+    </div>
+{% endblock %}
