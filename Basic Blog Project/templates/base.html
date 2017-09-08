@@ -20,17 +20,17 @@
                 <nav id="menu">
                     <ul class="links">
                         <li><a href="/newpost">New Post</a></li>
-                        {% if user_id == "" %}
+                        {% if user_id == "" or  user_id == None %}
                         <li><a href="/login">Login</a></li>
 
-                            {% endif %}
 
 
 
 
-                        {% if user_id != None and user_id !=""%}
+
+                        {% elif user_id != "" or user_id != None %}
                         <li><a href="/logout">Logout</a></li>
-                            <li><a href="/posts">My posts</a></li>
+
                     {% endif %}
 
                     </ul>

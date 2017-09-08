@@ -10,8 +10,29 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
                                autoescape=True)
 
+# Checks User session
 
+
+def checkUser(self):
+
+    if self.request.cookies.get("user_id"):
+        user_key = self.request.cookies.get("user_id").split("|")[0]
+        hash_key = self.request.cookies.get("user_id").split("|")[1]
+        if valid_pw(user_key, hash_key):
+            user_key = db.Key.from_path('UserDB', int(user_key),
+                                        parent=signup_key())
+
+            if user_key:
+                return True
+            else:
+                return False
+        else:
+            return False
+    else:
+        return False
 # Main Handler class that provides methods to render HTML/Text
+
+
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -85,10 +106,10 @@ class SignUp(Handler):
 
         db1 = UserDB(parent=signup_key(), username=username,
                      password=hashlib.sha256(pwd).hexdigest(), email=email)
-        check = db.GqlQuery(" select * from UserDB where username = :name ",
-                            name=username).get()
+        check = db.GqlQuery(""" select * from UserDB where username = :name
+                            """, name=username).get()
 
-        if not check:
+        if check:
             usererror = "User exists in the system"
             count += 1
 
@@ -168,8 +189,9 @@ class Login(Handler):
 
         username = self.request.get("username")
         pwd = self.request.get("password")
-        check = db.GqlQuery("select * from UserDB where username= :name and password= :pwd", name=username,
-                            pwd=hashlib.sha256(pwd).hexdigest()).get(keys_only=True)
+        check = db.GqlQuery("select * from UserDB where username= :name",
+                            name=username,
+                            pwd=hashlib.sha256(pwd).hexdigest()).get(keys_only=True)  # noqa
 
         if not check:
             error = "Invalid login"
@@ -249,24 +271,81 @@ class BlogGetbyId(Handler):
 class NewPost(Handler):
     def get(self):
 
-        if self.request.cookies.get("user_id"):
+        if checkUser(self):
+
             self.render("newpost.html")
+
         else:
             self.redirect("/login")
 
     def post(self):
 
-        user_key = self.request.cookies.get("user_id").split("|")[0]
-        user_key = db.Key.from_path('UserDB', int(user_key),
+        if checkUser(self):
+
+            user_key = self.request.cookies.get("user_id").split("|")[0]
+            user_key = db.Key.from_path('UserDB', int(user_key),
+                                        parent=signup_key())
+
+            subject = self.request.get("subject")
+            blogentry = self.request.get("blogentry")
+
+            if subject and blogentry:
+
+                blog = BlogDB(user=user_key, parent=blog_key(),
+                              subject=subject, blogentry=blogentry)
+                blog.put()
+
+                key = str(blog.key().id())
+
+                self.redirect("/blog/" + key)
+
+            else:
+                error = "Subject and content please!!"
+                self.render("newpost.html", subject=subject,
+                            blogentry=blogentry, error=error)
+        else:
+
+            self.redirect("/login")
+
+
+class EditPost(Handler):
+
+    def get(self, key):
+
+        if checkUser(self):
+
+            key1 = db.Key.from_path('BlogDB', int(key), parent=blog_key())
+            blog = db.get(key1)
+            user_key = self.request.cookies.get("user_id").split("|")[0]
+            user_id1 = BlogDB.user.get_value_for_datastore(blog).id()
+            key2 = db.Key.from_path('UserDB', int(user_id1),
                                     parent=signup_key())
+            user = db.get(key2)
 
-        subject = self.request.get("subject")
-        blogentry = self.request.get("blogentry")
+            if int(user_key) == int(user_id1):
 
-        if subject and blogentry:
+                self.render("edit.html", blog=blog)
 
-            blog = BlogDB(user=user_key, parent=blog_key(), subject=subject,
-                          blogentry=blogentry)
+            else:
+
+                editerror = "You can only edit posts created by you"
+
+                self.render("blogpost.html", blog=blog,
+                            comments=blog.blogposts,
+                            user=user, editerror=editerror)
+        else:
+
+            self.redirect("/login")
+
+    def post(self, key):
+
+        if checkUser(self):
+            key = db.Key.from_path('BlogDB', int(key), parent=blog_key())
+            blog = db.get(key)
+
+            blog.subject = self.request.get("subject")
+            blog.blogentry = self.request.get("blogentry")
+
             blog.put()
 
             key = str(blog.key().id())
@@ -274,53 +353,7 @@ class NewPost(Handler):
             self.redirect("/blog/" + key)
 
         else:
-            error = "Subject and content please!!"
-            self.render("newpost.html", subject=subject, blogentry=blogentry,
-                        error=error)
-
-
-class EditPost(Handler):
-
-    def get(self, key):
-        key1 = db.Key.from_path('BlogDB', int(key), parent=blog_key())
-        blog = db.get(key1)
-        user_key = self.request.cookies.get("user_id").split("|")[0]
-
-        if not blog:
-            self.error(404)
-            return
-
-        if user_key == "":
             self.redirect("/login")
-            return
-
-        user_id1 = BlogDB.user.get_value_for_datastore(blog).id()
-        key2 = db.Key.from_path('UserDB', int(user_id1), parent=signup_key())
-        user = db.get(key2)
-
-        if int(user_key) == int(user_id1):
-
-            self.render("edit.html", blog=blog)
-
-        else:
-
-            editerror = "You can only edit posts created by you"
-
-            self.render("blogpost.html", blog=blog, comments=blog.blogposts,
-                        user=user, editerror=editerror)
-
-    def post(self, key):
-        key = db.Key.from_path('BlogDB', int(key), parent=blog_key())
-        blog = db.get(key)
-
-        blog.subject = self.request.get("subject")
-        blog.blogentry = self.request.get("blogentry")
-
-        blog.put()
-
-        key = str(blog.key().id())
-
-        self.redirect("/blog/" + key)
 
 
 class DelPost(Handler):
@@ -362,7 +395,10 @@ class LikePost(Handler):
 
         key = db.Key.from_path('BlogDB', int(key), parent=blog_key())
         blog = db.get(key)
-        user_key = self.request.cookies.get("user_id").split("|")[0]
+        user_key = ""
+
+        if self.request.cookies.get("user_id"):
+            user_key = self.request.cookies.get("user_id").split("|")[0]
 
         if not blog:
             self.redirect("/blog")
@@ -429,54 +465,53 @@ class Comment(Handler):
 
     def get(self, key):
 
-        key = db.Key.from_path('BlogDB', int(key), parent=blog_key())
-        blog = db.get(key)
-        user_key = self.request.cookies.get("user_id").split("|")[0]
-
-        if user_key == "":
-            self.redirect("/login")
-            return
-
-        else:
+        if checkUser(self):
             self.render("comment.html")
+        else:
+            self.redirect("/login")
 
     def post(self, key):
 
-        key1 = key
+        if checkUser(self):
 
-        user_key = self.request.cookies.get("user_id").split("|")[0]
-        user_key = db.Key.from_path('UserDB', int(user_key),
-                                    parent=signup_key())
-        blogk = db.Key.from_path('BlogDB', int(key), parent=blog_key())
+            key1 = key
 
-        comment = self.request.get("comment")
+            user_key = self.request.cookies.get("user_id").split("|")[0]
+            user_key = db.Key.from_path('UserDB', int(user_key),
+                                        parent=signup_key())
+            blogk = db.Key.from_path('BlogDB', int(key), parent=blog_key())
 
-        if comment:
-            act = ActDB(user=user_key, blog=blogk, parent=act_key(),
-                        comment=comment)
-            act.put()
+            comment = self.request.get("comment")
 
-            self.redirect("/blog/" + key1)
+            if comment:
+                act = ActDB(user=user_key, blog=blogk, parent=act_key(),
+                            comment=comment)
+                act.put()
+
+                self.redirect("/blog/" + key1)
+
+            else:
+                error = "Enter comment please!!!"
+                self.render("comment.html", comment=comment, error=error)
 
         else:
-            error = "Enter comment please!!!"
-            self.render("comment.html", comment=comment, error=error)
+            self.redirect("/login")
 
 
 class EditComment(Handler):
 
     def get(self, ckey, bkey):
-        user_key = self.request.cookies.get("user_id").split("|")[0]
+        if checkUser(self):
 
-        if user_key == "":
-            self.redirect("/login")
-            return
-        else:
-
+            user_key = self.request.cookies.get("user_id").split("|")[0]
             key = db.Key.from_path('BlogDB', int(bkey), parent=blog_key())
             blog = db.get(key)
             ckey = db.Key.from_path('ActDB', int(ckey), parent=act_key())
             comment = db.get(ckey)
+
+            if not comment:
+                self.error(404)
+                return
 
             user_id1 = ActDB.user.get_value_for_datastore(comment).id()
 
@@ -494,19 +529,25 @@ class EditComment(Handler):
                 self.render("blogpost.html", blog=blog,
                             comments=blog.blogposts, user=user,
                             commenterror=commenterror)
+        else:
+            self.redirect("/login")
 
     def post(self, ckey, bkey):
 
-        key = db.Key.from_path('BlogDB', int(bkey), parent=blog_key())
-        blog = db.get(key)
-        ckey = db.Key.from_path('ActDB', int(ckey), parent=act_key())
-        comment = db.get(ckey)
-        comment.comment = self.request.get("comment")
-        comment.put()
+        if checkUser(self):
 
-        key = str(blog.key().id())
+            key = db.Key.from_path('BlogDB', int(bkey), parent=blog_key())
+            blog = db.get(key)
+            ckey = db.Key.from_path('ActDB', int(ckey), parent=act_key())
+            comment = db.get(ckey)
+            comment.comment = self.request.get("comment")
+            comment.put()
 
-        self.redirect("/blog/" + key)
+            key = str(blog.key().id())
+
+            self.redirect("/blog/" + key)
+        else:
+            self.redirect("/login")
 
 
 class DeleteComment(Handler):
@@ -523,6 +564,11 @@ class DeleteComment(Handler):
             blog = db.get(key)
             ckey = db.Key.from_path('ActDB', int(ckey), parent=act_key())
             comment = db.get(ckey)
+
+            if not comment:
+
+                self.error(404)
+                return
 
             user_id1 = ActDB.user.get_value_for_datastore(comment).id()
             key2 = db.Key.from_path('UserDB', int(user_id1),
@@ -556,3 +602,4 @@ app = webapp2.WSGIApplication([('/blog', Blog), ('/newpost', NewPost),
                               ("/editcomment/(\d+)/(\d+)", EditComment),
                               ("/delcomment/(\d+)/(\d+)",
                                DeleteComment)], debug=True)
+
